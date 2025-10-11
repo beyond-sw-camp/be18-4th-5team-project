@@ -207,3 +207,4 @@ yarn-error.log
 /application-*.yml
 
 .idea/
+docker-compose.yml
