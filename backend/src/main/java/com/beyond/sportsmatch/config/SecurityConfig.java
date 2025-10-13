@@ -63,8 +63,19 @@ public class SecurityConfig {
                                 "/ws/**",
                                 "/api/v1/sse/**"
                         ).permitAll()
+
+                        .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+
+                        .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
+
+                        // 정적/루트
+                        .requestMatchers("/", "/index.html", "/error").permitAll()
+
+                        // 웹소켓 엔드포인트
+                        .requestMatchers("/stomp/**").permitAll()
+
                         // 임박 매칭 리스트, 날짜별 매칭 리스트는 공개
-                        .requestMatchers("api/v1/match-service/imminent-matches", "api/v1/match-service/matches-by-date").permitAll()
+                        .requestMatchers("/api/v1/match-service/imminent-matches", "/api/v1/match-service/matches-by-date").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/community/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/favicon.ico", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
