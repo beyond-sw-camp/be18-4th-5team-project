@@ -1,0 +1,28 @@
+apiVersion: apps/v2
+kind: Deployment
+metadata:
+  name: backend-deploy-green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-green-label
+      version: green
+  template:
+    metadata:
+      labels:
+        app: backend-green-label
+        version: green
+    spec:
+      containers:
+      - name: backend-green
+        image: nongchukya/backend
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "500m"
+          limits:
+            memory: "256Mi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 8080

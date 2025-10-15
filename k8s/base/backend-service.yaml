@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-api-service
+spec:
+  # type: NodePort
+  type: ClusterIP
+  selector:
+    app: backend-api
+  ports:
+  - name: backend-api-port
+    port: 8080
+    targetPort: 8080
