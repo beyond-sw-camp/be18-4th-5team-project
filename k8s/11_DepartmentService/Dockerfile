@@ -1,6 +1,4 @@
 FROM eclipse-temurin:21-jre-alpine-3.22
-LABEL maintainer="hong123 <hong123@beyond.com>"
-LABEL version="1.0"
 COPY jwttest-0.0.1-SNAPSHOT.jar /root
 ARG BUILD_PROFILE=dev
 ARG BUILD_PORT=8087
