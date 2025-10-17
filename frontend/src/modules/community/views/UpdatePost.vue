@@ -52,7 +52,7 @@
 <script>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
+import api from "@/api/axios";
 
 export default {
   setup() {
@@ -75,8 +75,8 @@ export default {
 
     const fetchPost = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8080/api/v1/community/posts/${postId}`,
+        const res = await api.get(
+          `/api/v1/community/posts/${postId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const post = Array.isArray(res.data.items) ? res.data.items[0] : res.data.items;
@@ -114,8 +114,8 @@ export default {
         );
         newFiles.value.forEach(file => formData.append("files", file));
 
-        await axios.put(
-          `http://localhost:8080/api/v1/community/posts/${postId}`,
+        await api.put(
+          `/api/v1/community/posts/${postId}`,
           formData,
           {
             headers: {

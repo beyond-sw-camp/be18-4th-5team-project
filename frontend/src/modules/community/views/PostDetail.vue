@@ -99,8 +99,8 @@
 import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import defaultProfile from '@/assets/default_profile.png'
-import axios from "axios";
 import CommentNode from "../components/CommentNode.vue";
+import api from "@/api/axios";
 
 export default {
   components: { CommentNode },
@@ -131,13 +131,13 @@ export default {
         if (path.startsWith('http')) {
             return path
         }
-        return `http://localhost:8080${path}`
+        return `https://matching-api.beyond.com:30443${path}`
     };
 
     // 게시글 불러오기
     const fetchPost = async (id = postId.value, query = route.query) => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/v1/community/posts/${id}`, {
+        const res = await api.get(`/api/v1/community/posts/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
           params: query,
         });
@@ -153,8 +153,8 @@ export default {
     const fetchNeighbors = async (id = postId.value) => {
       try {
         const category = route.query.category || null;
-        const res = await axios.get(
-          `http://localhost:8080/api/v1/community/posts/${id}/neighbors`,
+        const res = await api.get(
+          `/api/v1/community/posts/${id}/neighbors`,
           { headers: { Authorization: `Bearer ${token}` }, params: { category } }
         );
         neighbors.value = {
@@ -172,8 +172,8 @@ export default {
       if (!newComment.value.trim()) return;
       postingComment.value = true;
       try {
-        const res = await axios.post(
-          `http://localhost:8080/api/v1/community/posts/${postId.value}/comments`,
+        const res = await api.post(
+          `/api/v1/community/posts/${postId.value}/comments`,
           { content: newComment.value },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -192,8 +192,8 @@ export default {
       if (liking.value) return;
       liking.value = true;
       try {
-        await axios.post(
-          `http://localhost:8080/api/v1/community/posts/${postId.value}/like`,
+        await api.post(
+          `/api/v1/community/posts/${postId.value}/like`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -211,7 +211,7 @@ export default {
       if (!confirm("정말 삭제하시겠습니까?")) return;
       deleting.value = true;
       try {
-        await axios.delete(`http://localhost:8080/api/v1/community/posts/${postId.value}`, {
+        await api.delete(`/api/v1/community/posts/${postId.value}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert("게시글이 삭제되었습니다.");

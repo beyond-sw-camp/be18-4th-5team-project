@@ -108,8 +108,8 @@
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue'
-import axios from 'axios'
 import defaultProfile from '@/assets/default_profile.png'
+import api from '@/api/axios'
 
 const props = defineProps({
   userData: Object,
@@ -144,8 +144,8 @@ function handleProfileImage(e) {
 async function resetProfileImage() {
   const token = localStorage.getItem("accessToken")
   try {
-    const res = await axios.put(
-      "http://localhost:8080/api/v1/mypage/profile/image/reset",
+    const res = await api.put(
+      "/api/v1/mypage/profile/image/reset",
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     )
@@ -176,7 +176,7 @@ function resolveProfileImage(path) {
   if (path.startsWith('http') || path.startsWith('data:image')) {
     return path
   }
-  return `http://localhost:8080${path}`
+  return `https://matching-api.beyond.com:30443${path}`
 }
 
 // 레벨 편집 모드
@@ -224,8 +224,8 @@ const saveProfile = async () => {
     const token = localStorage.getItem('accessToken')
 
     // 1) 일반 정보 업데이트
-    const res = await axios.put(
-      'http://localhost:8080/api/v1/mypage/profile',
+    const res = await api.put(
+      '/api/v1/mypage/profile',
       {
         name: editableData.name,
         email: editableData.email,
@@ -243,8 +243,8 @@ const saveProfile = async () => {
       const formData = new FormData()
       formData.append("profileImage", selectedFile.value)
 
-      const imageRes = await axios.put(
-        "http://localhost:8080/api/v1/mypage/profile/image",
+      const imageRes = await api.put(
+        "/api/v1/mypage/profile/image",
         formData,
         {
           headers: {
@@ -281,7 +281,7 @@ const saveLevels = async () => {
     }
 
     try {
-      await axios.post('http://localhost:8080/api/v1/mypage/levels', data, {
+      await api.post('/api/v1/mypage/levels', data, {
         headers: { Authorization: `Bearer ${token}` }
       })
 

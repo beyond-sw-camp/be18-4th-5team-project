@@ -54,7 +54,7 @@ import SockJS from 'sockjs-client'
 import Stomp from 'webstomp-client'
 import api from '@/api/axios'
 import VotePanel from '../components/VotePanel.vue'
-const API = 'http://localhost:8080'
+const API = 'https://matching-api.beyond.com:30443'
 
 export default {
   name: 'ChatRoom',

@@ -86,7 +86,7 @@ const onSubmit = async () => {
 
 const redirectToKakao = () => {
   const clientId = "ce2fb7ac1fb573cfb323ede04caab4d5"
-  const redirectUri = "http://localhost:5173/oauth/callback" 
+  const redirectUri = "https://matching-api.beyond.com/oauth/callback" 
   const kakaoUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`
 
   window.location.href = kakaoUrl

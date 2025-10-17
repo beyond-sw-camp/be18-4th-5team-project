@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "https://matching-api.beyond.com:30443",
   withCredentials: true,
 });
 

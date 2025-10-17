@@ -35,8 +35,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import CommentItem from './CommentItem.vue';
-import axios from 'axios';
 import { useRoute } from 'vue-router';
+import api from '@/api/axios';
 
 const { comment } = defineProps<{
   comment: {
@@ -64,8 +64,8 @@ const formatDate = (dateStr: string) => new Date(dateStr).toLocaleString();
 const submitReply = async () => {
   if (!replyText.value.trim()) return;
   try {
-    const res = await axios.post(
-      `http://localhost:8080/api/v1/community/posts/${postId}/comments/${comment.commentId}/replies`,
+    const res = await api.post(
+      `/api/v1/community/posts/${postId}/comments/${comment.commentId}/replies`,
       { content: replyText.value },
       { headers: { Authorization: `Bearer ${token}` } }
     );

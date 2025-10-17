@@ -48,7 +48,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import api from "@/api/axios";
 
 const router = useRouter();
 const token = localStorage.getItem("accessToken");
@@ -92,8 +92,8 @@ const submitPost = async () => {
 
     newFiles.value.forEach(file => formData.append("files", file));
 
-    await axios.post(
-      "http://localhost:8080/api/v1/community/posts",
+    await api.post(
+      "/api/v1/community/posts",
       formData,
       {
         headers: {

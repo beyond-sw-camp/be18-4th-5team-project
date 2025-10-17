@@ -57,7 +57,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 import defaultProfile from '@/assets/default_profile.png'
 import ProfileSection from './ProfileSection.vue'
 import MatchResults from '@/modules/match/components/MatchResults.vue'
@@ -65,6 +64,7 @@ import ReportSection from './Report.vue'
 import Setting from './Setting.vue'
 import { useMatchStore } from '@/modules/match/stores/matchStore'
 import Matching from './Matching.vue'
+import api from '@/api/axios'
 
 const matchStore = useMatchStore()
 
@@ -87,7 +87,7 @@ function resolveProfileImage(path) {
   if (path.startsWith('http')) {
     return path // 카카오 CDN 같은 경우
   }
-  return `http://localhost:8080${path}` // 서버 업로드 이미지
+  return `https://matching-api.beyond.com:30443${path}` // 서버 업로드 이미지
 }
 
 onMounted(async () => {
@@ -96,7 +96,7 @@ onMounted(async () => {
 
     await matchStore.fetchMatchResults()
 
-    const profileRes = await axios.get('http://localhost:8080/api/v1/mypage/profile', {
+    const profileRes = await api.get('/api/v1/mypage/profile', {
       headers: { Authorization: `Bearer ${token}` }
     })
 
@@ -111,7 +111,7 @@ onMounted(async () => {
       }
     }
 
-    const levelsRes = await axios.get('http://localhost:8080/api/v1/mypage/levels', {
+    const levelsRes = await api.get('/api/v1/mypage/levels', {
       headers: { Authorization: `Bearer ${token}` }
     })
 

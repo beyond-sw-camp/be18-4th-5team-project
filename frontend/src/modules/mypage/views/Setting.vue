@@ -135,7 +135,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
+import api from '@/api/axios'
 
 const appNotif = ref(true)
 const showPasswordChange = ref(false)
@@ -161,8 +161,8 @@ const changePassword = async () => {
 
   try {
     const token = localStorage.getItem('accessToken')
-    const res = await axios.put(
-      "http://localhost:8080/api/v1/auth/change-password",
+    const res = await api.put(
+      "/api/v1/auth/change-password",
       {
         currentPassword: currentPassword.value,
         newPassword: newPassword.value
@@ -194,8 +194,8 @@ const deleteAccount = async () => {
 
   try {
     const token = localStorage.getItem('accessToken')
-    await axios.put(
-      `http://localhost:8080/api/v1/auth/delete-user`,
+    await api.put(
+      `/api/v1/auth/delete-user`,
       { password: deletePassword.value },
       { headers: { Authorization: `Bearer ${token}` } }
     )

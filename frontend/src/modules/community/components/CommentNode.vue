@@ -60,9 +60,9 @@
 
 <script setup>
 import { ref } from "vue";
-import axios from "axios";
 import CommentNode from "./CommentNode.vue";
 import defaultProfile from '@/assets/default_profile.png'
+import api from "@/api/axios";
 
 const props = defineProps({
   comment: Object,
@@ -100,7 +100,7 @@ function resolveProfileImage(path) {
     if (path.startsWith('http')) {
             return path
     }
-    return `http://localhost:8080${path}`
+    return `https://matching-api.beyond.com:30443${path}`
 }
 
 // 답글 토글
@@ -114,8 +114,8 @@ const addReply = async () => {
 
   postingReply.value = true;
   try {
-    const res = await axios.post(
-      `http://localhost:8080/api/v1/community/posts/${props.postId}/comments/${props.comment.commentId}/replies`,
+    const res = await api.post(
+      `/api/v1/community/posts/${props.postId}/comments/${props.comment.commentId}/replies`,
       { content: newReply.value },
       { headers: { Authorization: `Bearer ${props.token}` } }
     );
@@ -149,8 +149,8 @@ const updateComment = async () => {
 
   editingComment.value = true;
   try {
-    await axios.put(
-      `http://localhost:8080/api/v1/community/posts/${props.postId}/comments/${props.comment.commentId}`,
+    await api.put(
+      `/api/v1/community/posts/${props.postId}/comments/${props.comment.commentId}`,
       { content: editContent.value },
       { headers: { Authorization: `Bearer ${props.token}` } }
     );
@@ -172,8 +172,8 @@ const deleteComment = async () => {
 
   deletingComment.value = true;
   try {
-    await axios.delete(
-      `http://localhost:8080/api/v1/community/posts/${props.postId}/comments/${props.comment.commentId}`,
+    await api.delete(
+      `/api/v1/community/posts/${props.postId}/comments/${props.comment.commentId}`,
       { headers: { Authorization: `Bearer ${props.token}` } }
     );
     emit("refresh-comments");
