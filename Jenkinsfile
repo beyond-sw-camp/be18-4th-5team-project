@@ -6,11 +6,14 @@ pipeline {
         DISCORD_WEBHOOK_CREDENTIALS_ID = 'discord-webhook'
     }    
 
+    stages{
         stage('Docker Compose up') {
             steps {
                 sh 'docker compose up -d --build'
             }
         }
+    }
+        
     
 
 
