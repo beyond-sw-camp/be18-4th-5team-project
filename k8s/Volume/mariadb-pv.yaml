@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: matching-mariadb-pv
+spec:
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  # PersistentVolume이 더 이상 사용되지 않을 때 정책을 설정한다
+  persistentVolumeReclaimPolicy: Delete
+  hostPath:
+    path: /run/desktop/mnt/host/c/Users/chosw/mariadb

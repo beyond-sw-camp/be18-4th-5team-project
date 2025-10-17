@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-redis-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matching-redis-app
+  template:
+    metadata:
+      labels:
+        app: matching-redis-app
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        # command는 이미지의 Entrypoint를 덮어쓴다.
+        # command: ["docker-entrypoint.sh"]
+        # args는 이미지의 Cmd를 덮어쓴다.
+        args: ["redis-server", "--requirepass", "$(REDIS_DEFAULT_PASSWORD)"]
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+        env:
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: global-config
+              key: TIME_ZONE
+        - name: REDIS_DEFAULT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: DEFAULT_PASSWORD
+        ports:
+        - containerPort: 6379
