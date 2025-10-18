@@ -229,6 +229,18 @@ spec:
                 git push origin HEAD:main
               '''
             }
+
+            sh '''
+              set -eux
+              echo "--- git status ---"
+              git status
+              echo "--- last commit ---"
+              git --no-pager log -1 --name-only
+              echo "--- diff against origin/main ---"
+              git fetch origin main
+              git --no-pager diff --name-only origin/main...HEAD || true
+            '''
+
           }
         }
       }
