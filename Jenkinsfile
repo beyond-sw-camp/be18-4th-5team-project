@@ -189,13 +189,13 @@ spec:
 
               if [ "${env.SHOULD_BUILD_APP}" = "true" ]; then
                 yq -i '
-                  (.images[] | select(.name == "sangwon0410/nongchukya-backend").newTag) = env(TAG)
+                  (.images[] | select(.name == "sangwon0410/nongchukya-backend").newTag) = strenv(TAG)
                 ' backend/overlays/prod/kustomization.yaml
               fi
 
               if [ "${env.SHOULD_BUILD_API}" = "true" ]; then
                 yq -i '
-                  (.images[] | select(.name == "sangwon0410/nongchukya-frontend").newTag) = env(TAG)
+                  (.images[] | select(.name == "sangwon0410/nongchukya-frontend").newTag) = strenv(TAG)
                 ' frontend/overlays/prod/kustomization.yaml
               fi
 
@@ -231,17 +231,6 @@ spec:
                 git push origin HEAD:main
               '''
             }
-
-            sh '''
-              set -eux
-              echo "--- git status ---"
-              git status
-              echo "--- last commit ---"
-              git --no-pager log -1 --name-only
-              echo "--- diff against origin/main ---"
-              git fetch origin main
-              git --no-pager diff --name-only origin/main...HEAD || true
-            '''
 
           }
         }
