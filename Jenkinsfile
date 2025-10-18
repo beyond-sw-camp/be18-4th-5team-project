@@ -1,26 +1,28 @@
 pipeline {
-    agent kubernetes {
-        yaml '''
-        apiVersion: v1
-        kind:Pod
-        metadata:
-            labels:
-                run: jenkins-agent
-        spec:
-            containers:
-            - name: docker
-              image: docker:28.5.1-cli-alpine3.22
-              command:
-              - cat
-              tty: true
-              volumeMounts:
-              - mountPath: "/var/run/docker.sock"
-                name: docker-socket
-              volumes:
-              - name: docker-socket
-                hostPath:
-                  path: "/var/run/docker.sock"
-        '''
+    agent {
+            kubernetes {
+                yaml '''
+                apiVersion: v1
+                kind:Pod
+                metadata:
+                    labels:
+                        run: jenkins-agent
+                spec:
+                    containers:
+                    - name: docker
+                    image: docker:28.5.1-cli-alpine3.22
+                    command:
+                    - cat
+                    tty: true
+                    volumeMounts:
+                    - mountPath: "/var/run/docker.sock"
+                        name: docker-socket
+                    volumes:
+                    - name: docker-socket
+                        hostPath:
+                        path: "/var/run/docker.sock"
+                '''
+        }
     }
 
 
@@ -63,16 +65,16 @@ pipeline {
 
             steps {
                 container('docker') {
-                    dir('university-vue') {
+                    dir('nongchukya-backend') {
                         script {
                             def buildNumber = "${env.BUILD_NUMBER}"
 
                             withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
                                 sh 'docker -v'
-                                sh 'echo $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
-                                sh 'docker build --no-cache -t $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                                sh 'echo $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker build --no-cache -t $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
                                 sh 'docker image inspect $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
-                                sh 'docker push $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker push $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
                             }
                         }
                     }
@@ -89,16 +91,16 @@ pipeline {
 
             steps {
                 container('docker') {
-                    dir('department-api') {
+                    dir('nongchukya-frontend') {
                         script {
                             def buildNumber = "${env.BUILD_NUMBER}"
 
                             withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
                                 sh 'docker -v'
-                                sh 'echo $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
-                                sh 'docker build --no-cache -t $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
-                                sh 'docker image inspect $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
-                                sh 'docker push $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'echo $FRONT_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker build --no-cache -t $FRONT_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                                sh 'docker image inspect $FRONT_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker push $FRONT_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
                             }
                         }
                     }
