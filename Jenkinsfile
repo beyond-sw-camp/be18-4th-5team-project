@@ -192,15 +192,18 @@ spec:
                 "TAG=${env.TAG}"
               ]) {
                 sh """
-                  set -eux
-                  echo "배포 태그(TAG) = ${TAG}"
-                  echo "발견된 compose 파일: ${composeFile}"
+                set -eux
+                echo "배포 태그(TAG) = ${TAG}"
+                echo "발견된 compose 파일: ${composeFile}"
 
-                  # latest 신선도 확보 + 충돌 방지
-                  docker compose -f "${composeFile}" pull || true
-                  docker compose -f "${composeFile}" -p "nongchukya" down --remove-orphans || true
-                  docker compose -f "${composeFile}" -p "nongchukya" up -d --build
-                  docker compose -f "${composeFile}" -p "nongchukya" ps
+                # ⬇ 포트/컨테이너 충돌 제거
+                docker compose -f "${composeFile}" -p "nongchukya" down --remove-orphans || true
+
+                # ⬇ latest 쓸 때는 한 번 더 당겨서 신선도 보장
+                docker compose -f "${composeFile}" pull || true
+
+                docker compose -f "${composeFile}" -p "nongchukya" up -d --build
+                docker compose -f "${composeFile}" -p "nongchukya" ps
                 """
               }
             }
