@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: sangwon0410/nongchukya-backend:latest
+    image: sangwon0410/nongchukya-backend:${TAG}
     depends_on:
       mariadb:
         condition: service_healthy
@@ -49,7 +49,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: sangwon0410/nongchukya-frontend:latest
+    image: sangwon0410/nongchukya-frontend:${TAG}
     depends_on:
       backend:
         condition: service_started

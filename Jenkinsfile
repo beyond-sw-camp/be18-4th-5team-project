@@ -31,7 +31,8 @@ spec:
     DOCKER_CREDENTIALS_ID = 'dockerhub-access'
     BACK_IMAGE_NAME = "sangwon0410/nongchukya-backend"
     FRONT_IMAGE_NAME = "sangwon0410/nongchukya-frontend"
-    TAG = "${env.BUILD_NUMBER}"
+    //TAG = "${env.BUILD_NUMBER}"
+    TAG = "latest"
   }
 
   stages {
@@ -40,6 +41,24 @@ spec:
         checkout scm
         sh 'echo "Git Checkout 완료"'
       }
+    }
+
+    stage('Detect Changes') {
+        steps {
+            script {
+                // 현재 커밋과 이전 커밋(HEAD~1) 간의 변경 파일을 가져온다.
+                def changedFiles = sh(script: 'git diff --name-only HEAD~1', returnStdout: true).trim().split("\n")
+                // 전체 배열을 줄바꿈으로 출력
+                echo "Changed files:\n${changedFiles.join('\n')}"
+                    
+                // 환경 변수 동적 설정
+                env.SHOULD_BUILD_APP = changedFiles.any { it.startsWith("backend/") } ? "true" : "false"
+                env.SHOULD_BUILD_API = changedFiles.any { it.startsWith("frontend/") } ? "true" : "false"
+
+                // echo "SHOULD_BUILD_APP : ${SHOULD_BUILD_APP}"
+                // echo "SHOULD_BUILD_API : ${SHOULD_BUILD_API}"
+            }
+        }
     }
 
     stage('Docker Login') {
@@ -76,6 +95,8 @@ spec:
                   docker build --no-cache -t $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION .
                   docker image inspect $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION
                   docker push $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION
+                  docker tag $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION $BACK_IMAGE_NAME:$TAG
+                  docker push $BACK_IMAGE_NAME:$TAG
                 '''
               }
             }
@@ -102,6 +123,8 @@ spec:
                   docker build --no-cache -t $FRONT_IMAGE_NAME:$DOCKER_IMAGE_VERSION .
                   docker image inspect $FRONT_IMAGE_NAME:$DOCKER_IMAGE_VERSION
                   docker push $FRONT_IMAGE_NAME:$DOCKER_IMAGE_VERSION
+                  docker tag $FRONT_IMAGE_NAME:$DOCKER_IMAGE_VERSION $FRONT_IMAGE_NAME:$TAG
+                  docker push $FRONT_IMAGE_NAME:$TAG
                 '''
               }
             }
@@ -145,8 +168,15 @@ spec:
                 string(credentialsId: 'APP_PROFILE', variable: 'APP_PROFILE'),
                 string(credentialsId: 'EXTERNAL_PORT', variable: 'EXTERNAL_PORT')
                 ]) {
+                    withEnv([
+                        "BACK_IMAGE_NAME=${env.BACK_IMAGE_NAME}",
+                        "FRONT_IMAGE_NAME=${env.FRONT_IMAGE_NAME}",
+                        "TAG=${env.TAG}"                 
+                    ])
+                {
                 sh """
                     set -eux
+                    echo "배포 태그(TAG) = ${TAG}"
                     echo "발견된 compose 파일: ${composeFile}"
                     docker compose -f "${composeFile}" up -d --build
                     docker compose -f "${composeFile}" ps
