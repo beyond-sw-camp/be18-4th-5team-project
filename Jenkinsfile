@@ -12,7 +12,7 @@ spec:
   serviceAccountName: jenkins
   containers:
   - name: docker
-    image: docker:27.3.1-cli-alpine
+    image: docker:28.5.1-cli-alpine3.22
     command: ['cat']
     tty: true
     volumeMounts:
@@ -31,8 +31,8 @@ spec:
     environment {
         DISCORD_WEBHOOK_CREDENTIALS_ID = 'discord-webhook'
         DOCKER_CREDENTIALS_ID = 'dockerhub-access'
-        BACK_IMAGE_NAME = "sangwon0410/nongchukya-frontend"
-        FRONT_IMAGE_NAME = "sangwon0410/nongchukya-backend"
+        BACK_IMAGE_NAME = "sangwon0410/nongchukya-backend"
+        FRONT_IMAGE_NAME = "sangwon0410/nongchukya-frontend"
         TAG = "${env.BUILD_NUMBER}"
     }    
 
@@ -67,7 +67,7 @@ spec:
 
             steps {
                 container('docker') {
-                    dir('nongchukya-backend') {
+                    dir('backend') {
                         script {
                             def buildNumber = "${env.BUILD_NUMBER}"
 
@@ -75,7 +75,7 @@ spec:
                                 sh 'docker -v'
                                 sh 'echo $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
                                 sh 'docker build --no-cache -t $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
-                                sh 'docker image inspect $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker image inspect $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
                                 sh 'docker push $BACK_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
                             }
                         }
@@ -93,7 +93,7 @@ spec:
 
             steps {
                 container('docker') {
-                    dir('nongchukya-frontend') {
+                    dir('frontend') {
                         script {
                             def buildNumber = "${env.BUILD_NUMBER}"
 
