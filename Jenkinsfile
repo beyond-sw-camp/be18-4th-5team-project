@@ -8,11 +8,6 @@ pipeline {
               name: jenkins-agent
             spec:
               containers:
-              - name: maven
-                image: maven:3.9.9-eclipse-temurin-21-alpine
-                command:
-                - cat
-                tty: true
               - name: docker
                 image: docker:28.5.1-cli-alpine3.22
                 command:
@@ -30,12 +25,32 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE_NAME = 'kyounggg/ncy-service'
+        APP_IMAGE_NAME = 'kyounggg/ncy-vue'
+        API_IMAGE_NAME = 'kyounggg/ncy-service'
         DOCKER_CREDENTIALS_ID = 'dockerhub-access'
         DISCORD_WEBHOOK_CREDENTIALS_ID = 'discord-webhook'
     }
 
     stages {
+                stage('Detect Changes') {
+            steps {
+                script {
+                    // 현재 커밋과 이전 커밋(HEAD~1) 간의 변경 파일을 가져온다.
+                    def changedFiles = sh(script: 'git diff --name-only HEAD~1', returnStdout: true).trim().split("\n")
+
+                    // 전체 배열을 줄바꿈으로 출력
+                    echo "Changed files:\n${changedFiles.join('\n')}"   
+
+                    // 환경 변수 동적 설정
+                    env.SHOULD_BUILD_APP = changedFiles.any { it.startsWith("frontend/") } ? "true" : "false"
+                    env.SHOULD_BUILD_API  = changedFiles.any { it.startsWith("backend/") } ? "true" : "false"
+
+                    echo "SHOULD_BUILD_APP : ${SHOULD_BUILD_APP}"
+                    echo "SHOULD_BUILD_API : ${SHOULD_BUILD_API}"
+                }
+            }
+        }
+
         // stage('SonarQube Analysis') {
         //     steps {
         //         container('maven') {
@@ -49,50 +64,83 @@ pipeline {
         //     }
         // }
 
-        stage('Maven Build') {
+        // stage('Maven Build') {
+        //     steps {
+        //         container('maven') {
+        //             sh 'pwd'
+        //             sh 'ls -al'
+        //             sh 'mvn -v'
+        //             // sh 'mvn clean'
+        //             sh 'mvn package -DskipTests'
+        //             sh 'ls -al'
+        //             sh 'ls -al ./target'
+        //         }
+        //     }
+        // }
+
+       // 로그아웃 & 로그인 중복되는 부분이므로 따로 작성
+        stage('Docker Login') {
             steps {
-                container('maven') {
-                    sh 'pwd'
-                    sh 'ls -al'
-                    sh 'mvn -v'
-                    // sh 'mvn clean'
-                    sh 'mvn package -DskipTests'
-                    sh 'ls -al'
-                    sh 'ls -al ./target'
+                container('docker') {
+                    sh 'docker logout'
+
+                    withCredentials([usernamePassword(
+                        credentialsId: DOCKER_CREDENTIALS_ID,
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    }
                 }
             }
         }
 
-        stage('Docker Image Build & Push') {
+        stage('APP Image Build & Push') {
+            // when을 만족할때만 step 실행
+            when {
+                expression {
+                    return env.SHOULD_BUILD_APP == "true"
+                }
+            }
             steps {
                 container('docker') {
-                    script {
-                        def buildNumber = "${env.BUILD_NUMBER}"
+                    // 해당 폴더로 이동
+                    dir('frontend') {
+                        script {
+                            def buildNumber = "${env.BUILD_NUMBER}"
 
-                        sh 'docker logout'
-
-                        // withCredentials()
-                        //  - 파이프라인에서 자격 증명을 사용할 수 있는 블록을 생성한다.
-                        // usernamePassword()
-                        //  - 자격 증명 중 사용자 이름과 비밀번호를 가져온다.
-                        //  - credentialsId는 자격 증명을 식별할 수 있는 식별자를 작성한다.
-                        //  - usernameVariable은 자격 증명에서 가져온 사용자 이름을 저장하는 환경 변수의 이름을 작성한다.
-                        //  - passwordVariable은 자격 증명에서 가져온 비밀번호를 저장하는 환경 변수의 이름을 작성한다.
-                        withCredentials([usernamePassword(
-                            credentialsId: DOCKER_CREDENTIALS_ID,
-                            usernameVariable: 'DOCKER_USERNAME',
-                            passwordVariable: 'DOCKER_PASSWORD'
-                        )]) {
-                            sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                            withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
+                                sh 'docker -v'
+                                sh 'echo $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker build --no-cache -t $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                                sh 'docker image inspect $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker push $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                            }
                         }
+                    }
+                }
+            }
+        }
 
-                        // 파이프라인 단계에서 환경 변수를 설정하는 역할을 한다.
-                        withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
-                            sh 'docker -v'
-                            sh 'echo $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
-                            sh 'docker build --no-cache -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
-                            sh 'docker image inspect $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
-                            sh 'docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+        stage('API Image Build & Push') {
+            when {
+                expression {
+                    return env.SHOULD_BUILD_API == "true"
+                }
+            }
+            steps {
+                container('docker') {
+                    dir('backend') {
+                        script {
+                            def buildNumber = "${env.BUILD_NUMBER}"
+
+                            withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
+                                sh 'docker -v'
+                                sh 'echo $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker build --no-cache -t $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                                sh 'docker image inspect $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker push $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                            }
                         }
                     }
                 }
