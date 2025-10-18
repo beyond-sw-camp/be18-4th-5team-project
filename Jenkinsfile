@@ -154,55 +154,74 @@ spec:
     }
 
     stage('Update Manifests Repo') {
-        when {
-            expression { return env.SHOULD_BUILD_APP == "true" || env.SHOULD_BUILD_API == "true" }
-        }
-        steps {
-            container('docker') {
-            dir('manifests') {
-                checkout([
-                $class: 'GitSCM',
-                userRemoteConfigs: [[
-                    url: 'git@github.com:sangwon5579/nongchukya-k8s-manifests.git',
-                    credentialsId: 'nongchukya-k8s-manifests'
-                ]],
-                branches: [[name: '*/main']]
-                ])
+      when {
+        expression { return env.SHOULD_BUILD_APP == "true" || env.SHOULD_BUILD_API == "true" }
+      }
+      steps {
+        container('docker') {
+          dir('manifests') {
 
-                sh '''
-                set -eux
-                # 혹시 모를 detached HEAD 보호
-                git checkout -B main origin/main
-                '''
+            sh '''
+              set -eux
+              apk add --no-cache git openssh-client yq
+            '''
 
-                script {
-                echo "Bumping manifests with TAG=${env.TAG}"
-                }
+            checkout([
+              $class: 'GitSCM',
+              userRemoteConfigs: [[
+                url: 'git@github.com:sangwon5579/nongchukya-k8s-manifests.git',
+                credentialsId: 'nongchukya-k8s-manifests'
+              ]],
+              branches: [[name: '*/main']]
+            ])
 
-                sh """
-                set -eux
-                if [ "${env.SHOULD_BUILD_APP}" = "true" ]; then
-                    sed -i 's#\\(name: *sangwon0410/nongchukya-backend\\)\\(\\n\\s*newTag: *\\).*#\\1\\2\"${env.TAG}\"#' backend/overlays/prod/kustomization.yaml
-                fi
-                if [ "${env.SHOULD_BUILD_API}" = "true" ]; then
-                    sed -i 's#\\(name: *sangwon0410/nongchukya-frontend\\)\\(\\n\\s*newTag: *\\).*#\\1\\2\"${env.TAG}\"#' frontend/overlays/prod/kustomization.yaml
-                fi
-                git diff || true
-                """
+            sh 'git config --global --add safe.directory "$(pwd)"'
 
-                sh '''
-                set -eux
-                git config user.name "jenkins-bot"
-                git config user.email "jenkins-bot@local"
-                git add -A
-                git commit -m "chore: bump images to TAG=${TAG} (be=${SHOULD_BUILD_APP}, fe=${SHOULD_BUILD_API})" || true
-                git push origin HEAD:refs/heads/main
-                '''
+            sh '''
+              set -eux
+              git checkout -B main origin/main
+            '''
+
+            script { echo "Bumping manifests with TAG=${env.TAG}" }
+
+            sh """
+              set -eux
+
+              if [ "${env.SHOULD_BUILD_APP}" = "true" ]; then
+                yq -i '
+                  (.images[] | select(.name == "sangwon0410/nongchukya-backend").newTag) = env(TAG)
+                ' backend/overlays/prod/kustomization.yaml
+              fi
+
+              if [ "${env.SHOULD_BUILD_API}" = "true" ]; then
+                yq -i '
+                  (.images[] | select(.name == "sangwon0410/nongchukya-frontend").newTag) = env(TAG)
+                ' frontend/overlays/prod/kustomization.yaml
+              fi
+
+              echo "backend kustomization.yaml (head):"
+              head -n 50 backend/overlays/prod/kustomization.yaml || true
+              echo "frontend kustomization.yaml (head):"
+              head -n 50 frontend/overlays/prod/kustomization.yaml || true
+            """
+
+
+            sh '''
+              set -eux
+              git config user.name  "jenkins-bot"
+              git config user.email "jenkins-bot@local"
+              git add -A
+              # 변경 없으면 커밋 스킵
+              git diff --quiet && echo "no changes" || git commit -m "chore: bump images to TAG=${TAG} (be=${SHOULD_BUILD_APP}, fe=${SHOULD_BUILD_API})"
+            '''
+
+            sshagent(credentials: ['nongchukya-k8s-manifests']) {
+              sh 'git push origin HEAD:main'
             }
-            }
+          }
         }
+      }
     }
-
 
     stage('Docker Compose up') {
       steps {
