@@ -1,9 +1,0 @@
-FROM eclipse-temurin:21-jre-alpine-3.22
-COPY jwttest-0.0.1-SNAPSHOT.jar /root
-ARG BUILD_PROFILE=dev
-ARG BUILD_PORT=8087
-ENV TZ=Asia/Seoul
-ENV APP_PROFILE=${BUILD_PROFILE}
-EXPOSE ${BUILD_PORT}
-WORKDIR /root
-CMD [ "java", "-jar", "jwttest-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=${APP_PROFILE}" ]
