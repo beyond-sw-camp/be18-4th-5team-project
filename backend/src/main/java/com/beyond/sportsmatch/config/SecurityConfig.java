@@ -73,6 +73,8 @@ public class SecurityConfig {
                         // 정적/루트
                         .requestMatchers("/", "/index.html", "/error").permitAll()
 
+        
+
                         // 임박 매칭 리스트, 날짜별 매칭 리스트는 공개
                         .requestMatchers("/api/v1/match-service/imminent-matches", "/api/v1/match-service/matches-by-date").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/community/**").permitAll()
@@ -107,3 +109,6 @@ public class SecurityConfig {
     }
 
 }
+
+
+//test
