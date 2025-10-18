@@ -1,27 +1,26 @@
 pipeline {
     agent {
             kubernetes {
-                yaml '''
+                yaml """
                 apiVersion: v1
-                kind:Pod
-                metadata:
+                kind: Pod
+                metadata: 
                     labels:
                         run: jenkins-agent
                 spec:
                     containers:
                     - name: docker
-                    image: docker:28.5.1-cli-alpine3.22
-                    command:
-                    - cat
+                    image: docker:28.5.1-cli-alpine
+                    command:['cat']
                     tty: true
                     volumeMounts:
-                    - mountPath: "/var/run/docker.sock"
-                        name: docker-socket
+                    - name: docker-socket
+                        mountPath: "/var/run/docker.sock"
                     volumes:
                     - name: docker-socket
                         hostPath:
                         path: "/var/run/docker.sock"
-                '''
+                """
         }
     }
 
