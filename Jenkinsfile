@@ -111,16 +111,18 @@ spec:
     }
 
     stage('Docker Compose up') {
-      steps {
-        container('docker') {
-          sh '''
-            echo "현재 디렉토리: $(pwd)"
-            ls -la
-            echo "Docker Compose 실행 시작"
-            docker compose -f ./docker-compose.yml up -d --build
-          '''
+        steps {
+            container('docker') {
+            dir('BE18-4TH-5TEAM-PROJECT') {
+                sh '''
+                echo "현재 디렉토리: $(pwd)"
+                ls -la
+                echo "Docker Compose 실행 시작"
+                docker compose -f docker-compose.yml up -d --build
+                '''
+            }
+            }
         }
-      }
     }
   }
 
