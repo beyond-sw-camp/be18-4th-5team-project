@@ -45,18 +45,29 @@ spec:
 
     stage('Detect Changes') {
         steps {
+            dir("${env.WORKSPACE}") {
             script {
-                // 현재 커밋과 이전 커밋(HEAD~1) 간의 변경 파일을 가져온다.
-                def changedFiles = sh(script: 'git diff --name-only HEAD~1', returnStdout: true).trim().split("\n")
-                // 전체 배열을 줄바꿈으로 출력
-                echo "Changed files:\n${changedFiles.join('\n')}"
-                    
-                // 환경 변수 동적 설정
-                env.SHOULD_BUILD_APP = changedFiles.any { it.startsWith("backend/") } ? "true" : "false"
-                env.SHOULD_BUILD_API = changedFiles.any { it.startsWith("frontend/") } ? "true" : "false"
+                def hasGit = sh(script: 'command -v git >/dev/null 2>&1 && echo yes || echo no', returnStdout: true).trim() == 'yes'
+                def isRepo = sh(script: '[ -d .git ] && echo yes || echo no', returnStdout: true).trim() == 'yes'
 
-                // echo "SHOULD_BUILD_APP : ${SHOULD_BUILD_APP}"
-                // echo "SHOULD_BUILD_API : ${SHOULD_BUILD_API}"
+                if (!hasGit || !isRepo) {
+                echo "Detect Changes: git(${hasGit}), .git(${isRepo}) => 빌드 둘 다 진행"
+                env.SHOULD_BUILD_APP = "true"
+                env.SHOULD_BUILD_API = "true"
+                return
+                }
+
+                def diffCmd = 'git rev-parse --verify HEAD~1 >/dev/null 2>&1 && git diff --name-only HEAD~1 || git diff --name-only HEAD'
+                def changed = sh(script: diffCmd, returnStdout: true).trim()
+                def files = changed ? changed.split("\\r?\\n") : []
+
+                echo "Changed files:\n${files.join('\n')}"
+
+                env.SHOULD_BUILD_APP = files.any { it.startsWith('backend/') }  ? "true" : "false"
+                env.SHOULD_BUILD_API = files.any { it.startsWith('frontend/') } ? "true" : "false"
+
+                echo "SHOULD_BUILD_APP=${env.SHOULD_BUILD_APP}, SHOULD_BUILD_API=${env.SHOULD_BUILD_API}"
+            }
             }
         }
     }
