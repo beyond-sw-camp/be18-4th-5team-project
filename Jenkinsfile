@@ -113,13 +113,31 @@ spec:
     stage('Docker Compose up') {
         steps {
             container('docker') {
-            dir('BE18-4TH-5TEAM-PROJECT') {  //일단 강제 경로 지정
-                sh '''
-                echo "현재 디렉토리: $(pwd)"
-                ls -la
-                echo "Docker Compose 실행 시작"
-                docker compose -f docker-compose.yaml up -d --build
-                '''
+            script {
+                def candidates = [
+                'docker-compose.yml',
+                'be18-4th-5team-project/docker-compose.yml',
+                'BE18-4TH-5TEAM-PROJECT/docker-compose.yml'
+                ]
+                def composeFile = candidates.find { fileExists(it) }
+
+                if (!composeFile) {
+                sh """
+                    echo 'docker-compose 파일을 찾지 못했습니다.'
+                    echo 'WORKSPACE = ${WORKSPACE}'
+                    echo '루트 목록:'
+                    ls -la "${WORKSPACE}"
+                    echo '하위 2단계까지 탐색 결과:'
+                    find "${WORKSPACE}" -maxdepth 2 -name 'docker-compose.*' -print || true
+                """
+                error('docker-compose 파일이 없습니다. 경로/이름을 확인하세요.')
+                }
+
+                sh """
+                set -eux
+                echo "발견된 compose 파일: ${composeFile}"
+                docker compose -f "${composeFile}" up -d --build
+                """
             }
             }
         }
