@@ -36,7 +36,7 @@ public class AuthController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) {
         userService.signUp(dto, profileImage);
-        return ResponseEntity.ok("회원가입 성공!");
+        return ResponseEntity.ok("회원가입 성공!!");
     }
 
     // 로그인
