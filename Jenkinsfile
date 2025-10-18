@@ -243,7 +243,6 @@ spec:
               'be18-4th-5team-project/docker-compose.yml'
             ]
             def composeFile = candidates.find { fileExists(it) }
-
             if (!composeFile) {
               sh """
                 echo 'docker-compose 파일을 찾지 못했습니다.'
@@ -254,6 +253,42 @@ spec:
               """
               error('docker-compose 파일이 없습니다. 경로/이름을 확인하세요.')
             }
+
+
+            def BACK_TAG
+            def FRONT_TAG
+
+            if (env.SHOULD_BUILD_APP == "true") {
+              BACK_TAG = env.BUILD_NUMBER
+            } else {
+              BACK_TAG = sh(
+                script: '''
+                  set -e
+                  docker pull sangwon0410/nongchukya-backend:latest >/dev/null 2>&1 || true
+                  docker inspect --format='{{ index .RepoTags 0 }}' sangwon0410/nongchukya-backend:latest 2>/dev/null \
+                    | awk -F: '{print $2}'
+                ''',
+                returnStdout: true
+              ).trim()
+              if (!BACK_TAG) { BACK_TAG = "latest" }
+            }
+
+            if (env.SHOULD_BUILD_API == "true") {
+              FRONT_TAG = env.BUILD_NUMBER
+            } else {
+              FRONT_TAG = sh(
+                script: '''
+                  set -e
+                  docker pull sangwon0410/nongchukya-frontend:latest >/dev/null 2>&1 || true
+                  docker inspect --format='{{ index .RepoTags 0 }}' sangwon0410/nongchukya-frontend:latest 2>/dev/null \
+                    | awk -F: '{print $2}'
+                ''',
+                returnStdout: true
+              ).trim()
+              if (!FRONT_TAG) { FRONT_TAG = "latest" }
+            }
+
+            echo "최종 사용할 태그  BACK_TAG=${BACK_TAG}, FRONT_TAG=${FRONT_TAG}"
 
             withCredentials([
               string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
@@ -267,24 +302,22 @@ spec:
               string(credentialsId: 'APP_PROFILE', variable: 'APP_PROFILE'),
               string(credentialsId: 'EXTERNAL_PORT', variable: 'EXTERNAL_PORT')
             ]) {
+              
               withEnv([
                 "BACK_IMAGE_NAME=${env.BACK_IMAGE_NAME}",
                 "FRONT_IMAGE_NAME=${env.FRONT_IMAGE_NAME}",
-                "TAG=${env.TAG}"
+                "BACK_TAG=${BACK_TAG}",
+                "FRONT_TAG=${FRONT_TAG}"
               ]) {
                 sh """
-                set -eux
-                echo "배포 태그(TAG) = ${TAG}"
-                echo "발견된 compose 파일: ${composeFile}"
+                  set -eux
+                  echo "compose 파일: ${composeFile}"
+                  echo "BACK_TAG=${BACK_TAG}, FRONT_TAG=${FRONT_TAG}"
 
-                # ⬇ 포트/컨테이너 충돌 제거
-                docker compose -f "${composeFile}" -p "nongchukya" down --remove-orphans || true
-
-                # ⬇ latest 쓸 때는 한 번 더 당겨서 신선도 보장
-                docker compose -f "${composeFile}" pull || true
-
-                docker compose -f "${composeFile}" -p "nongchukya" up -d --build
-                docker compose -f "${composeFile}" -p "nongchukya" ps
+                  docker compose -f "${composeFile}" -p "nongchukya" down --remove-orphans || true
+                  docker compose -f "${composeFile}" pull || true
+                  docker compose -f "${composeFile}" -p "nongchukya" up -d --build
+                  docker compose -f "${composeFile}" -p "nongchukya" ps
                 """
               }
             }
