@@ -18,7 +18,7 @@ target/
 *.iws
 *.iml
 *.ipr
-*.yml
+# *.yml
 application.properties
 
 ### NetBeans ###
