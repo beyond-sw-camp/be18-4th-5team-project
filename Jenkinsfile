@@ -216,7 +216,18 @@ spec:
             '''
 
             sshagent(credentials: ['nongchukya-k8s-manifests']) {
-              sh 'git push origin HEAD:main'
+              sh '''
+                set -eux
+                # GitHub 호스트키 신뢰 등록
+                mkdir -p ~/.ssh && chmod 700 ~/.ssh
+                ssh-keyscan -t rsa,ecdsa,ed25519 -H github.com >> ~/.ssh/known_hosts
+                chmod 644 ~/.ssh/known_hosts
+
+                # 혹시 원격이 https 로 잡혀 있으면 ssh 로 고정
+                git remote set-url origin git@github.com:sangwon5579/nongchukya-k8s-manifests.git
+
+                git push origin HEAD:main
+              '''
             }
           }
         }
