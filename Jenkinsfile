@@ -153,66 +153,54 @@ spec:
       }
     }
 
-    stage('Update Manifests Repo (bump tags for ArgoCD)') {
-      when {
-        expression {
-          return (env.SHOULD_BUILD_APP == "true" || env.SHOULD_BUILD_API == "true")
+    stage('Update Manifests Repo') {
+        when {
+            expression { return env.SHOULD_BUILD_APP == "true" || env.SHOULD_BUILD_API == "true" }
         }
-      }
-      steps {
-        container('jnlp') {
-          dir('manifests') {
-            checkout([$class: 'GitSCM',
-              userRemoteConfigs: [[
-                url: 'git@github.com:sangwon5579/nongchukya-k8s-manifests.git',   
-                credentialsId: 'nongchukya-k8s-manifests'        
-              ]],
-              branches: [[name: '*/main']]
-            ])
+        steps {
+            container('docker') {
+            dir('manifests') {
+                checkout([
+                $class: 'GitSCM',
+                userRemoteConfigs: [[
+                    url: 'git@github.com:sangwon5579/nongchukya-k8s-manifests.git',
+                    credentialsId: 'github-k8s-manifests'
+                ]],
+                branches: [[name: '*/main']]
+                ])
 
-            script {
-              echo "Bumping manifests with TAG=${env.TAG}"
-            }
+                sh '''
+                set -eux
+                # 혹시 모를 detached HEAD 보호
+                git checkout -B main origin/main
+                '''
 
-            sh '''
-              set -eux
+                script {
+                echo "Bumping manifests with TAG=${env.TAG}"
+                }
 
-              # 백엔드 변경된 경우에만 갱신
-              if [ "${SHOULD_BUILD_APP}" = "true" ]; then
-                sed -i '0,/name: *sangwon0410\\/nongchukya-backend/{/name: *sangwon0410\\/nongchukya-backend/{n;s/^ *newTag: .*/  newTag: "'${TAG}'"/}}' backend/overlays/prod/kustomization.yaml
-                echo "backend kustomization.yaml:"
-                cat backend/overlays/prod/kustomization.yaml
-              else
-                echo "backend: 이번 빌드 변경 없음 → 건너뜀"
-              fi
+                sh """
+                set -eux
+                if [ "${env.SHOULD_BUILD_APP}" = "true" ]; then
+                    sed -i 's#\\(name: *sangwon0410/nongchukya-backend\\)\\(\\n\\s*newTag: *\\).*#\\1\\2\"${env.TAG}\"#' backend/overlays/prod/kustomization.yaml
+                fi
+                if [ "${env.SHOULD_BUILD_API}" = "true" ]; then
+                    sed -i 's#\\(name: *sangwon0410/nongchukya-frontend\\)\\(\\n\\s*newTag: *\\).*#\\1\\2\"${env.TAG}\"#' frontend/overlays/prod/kustomization.yaml
+                fi
+                git diff || true
+                """
 
-              # 프론트 변경된 경우에만 갱신
-              if [ "${SHOULD_BUILD_API}" = "true" ]; then
-                sed -i '0,/name: *sangwon0410\\/nongchukya-frontend/{/name: *sangwon0410\\/nongchukya-frontend/{n;s/^ *newTag: .*/  newTag: "'${TAG}'"/}}' frontend/overlays/prod/kustomization.yaml
-                echo "frontend kustomization.yaml:"
-                cat frontend/overlays/prod/kustomization.yaml
-              else
-                echo "frontend: 이번 빌드 변경 없음 → 건너뜀"
-              fi
-            '''
-
-            sh '''
-              set -eux
-              git config user.name  "jenkins-bot"
-              git config user.email "jenkins-bot@local"
-
-              if ! git diff --quiet; then
+                sh '''
+                set -eux
+                git config user.name "jenkins-bot"
+                git config user.email "jenkins-bot@local"
                 git add -A
-                git commit -m "chore: bump images to TAG=${TAG} (backend=${SHOULD_BUILD_APP}, frontend=${SHOULD_BUILD_API})"
-                git push origin main
-                echo "Manifests pushed. ArgoCD will pick this up."
-              else
-                echo "No manifest changes to commit."
-              fi
-            '''
-          }
+                git commit -m "chore: bump images to TAG=${TAG} (be=${SHOULD_BUILD_APP}, fe=${SHOULD_BUILD_API})" || true
+                git push origin HEAD:refs/heads/main
+                '''
+            }
+            }
         }
-      }
     }
 
 
