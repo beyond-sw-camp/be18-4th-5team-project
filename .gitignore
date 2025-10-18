@@ -208,3 +208,4 @@ yarn-error.log
 
 .idea/
 .env
+k8s/Secret/
