@@ -21,17 +21,17 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: backend-api-service
+            name: nongchukya-backend-service
             port:
               number: 8080
 
-  - host: nongchukya-app.beyond.com
+  - host: nongchukya-frontend.beyond.com
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: frontend-vue-service
+            name: nongchukya-frontend-service
             port:
               number: 80
