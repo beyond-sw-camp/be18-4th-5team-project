@@ -116,8 +116,8 @@ spec:
             script {
                 def candidates = [
                 'docker-compose.yml',
-                'be18-4th-5team-project/docker-compose.yml',
-                'BE18-4TH-5TEAM-PROJECT/docker-compose.yml'
+                'BE18-4TH-5TEAM-PROJECT/docker-compose.yml',
+                'be18-4th-5team-project/docker-compose.yml'
                 ]
                 def composeFile = candidates.find { fileExists(it) }
 
@@ -127,22 +127,35 @@ spec:
                     echo 'WORKSPACE = ${WORKSPACE}'
                     echo '루트 목록:'
                     ls -la "${WORKSPACE}"
-                    echo '하위 2단계까지 탐색 결과:'
+                    echo '하위 2단계까지 탐색:'
                     find "${WORKSPACE}" -maxdepth 2 -name 'docker-compose.*' -print || true
                 """
                 error('docker-compose 파일이 없습니다. 경로/이름을 확인하세요.')
                 }
 
+                withCredentials([
+                string(credentialsId: 'DB_HOST', variable: 'DB_HOST'),
+                string(credentialsId: 'DB_NAME', variable: 'DB_NAME'),
+                string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                string(credentialsId: 'DB_PASS', variable: 'DB_PASS'),
+                string(credentialsId: 'MARIADB_ROOT_PASSWORD', variable: 'MARIADB_ROOT_PASSWORD'),
+                string(credentialsId: 'REDIS_HOST', variable: 'REDIS_HOST'),
+                string(credentialsId: 'REDIS_PORT', variable: 'REDIS_PORT'),
+                string(credentialsId: 'REDIS_PASSWORD', variable: 'REDIS_PASSWORD'),
+                string(credentialsId: 'APP_PROFILE', variable: 'APP_PROFILE'),
+                string(credentialsId: 'EXTERNAL_PORT', variable: 'EXTERNAL_PORT')
+                ]) {
                 sh """
-                set -eux
-                echo "발견된 compose 파일: ${composeFile}"
-                docker compose -f "${composeFile}" up -d --build
+                    set -eux
+                    echo "발견된 compose 파일: ${composeFile}"
+                    docker compose -f "${composeFile}" up -d --build
+                    docker compose -f "${composeFile}" ps
                 """
+                }
             }
             }
         }
     }
-  }
 
   post {
     always {
