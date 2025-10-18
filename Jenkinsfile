@@ -45,32 +45,40 @@ spec:
 
     stage('Detect Changes') {
         steps {
+            container('jnlp') {
             dir("${env.WORKSPACE}") {
-            script {
-                def hasGit = sh(script: 'command -v git >/dev/null 2>&1 && echo yes || echo no', returnStdout: true).trim() == 'yes'
-                def isRepo = sh(script: '[ -d .git ] && echo yes || echo no', returnStdout: true).trim() == 'yes'
-
-                if (!hasGit || !isRepo) {
-                echo "Detect Changes: git(${hasGit}), .git(${isRepo}) => 빌드 둘 다 진행"
-                env.SHOULD_BUILD_APP = "true"
-                env.SHOULD_BUILD_API = "true"
-                return
+                script {
+                def inRepo = sh(script: 'git -C . rev-parse --is-inside-work-tree >/dev/null 2>&1 && echo yes || echo no', returnStdout: true).trim() == 'yes'
+                if (!inRepo) {
+                    echo "Detect Changes: not a git worktree → 빌드 둘 다 수행"
+                    env.SHOULD_BUILD_APP = "true"
+                    env.SHOULD_BUILD_API = "true"
+                    return
                 }
 
-                def diffCmd = 'git rev-parse --verify HEAD~1 >/dev/null 2>&1 && git diff --name-only HEAD~1 || git diff --name-only HEAD'
+                // HEAD~1 유무에 따라 안전 폴백
+                def hasPrev = sh(script: 'git -C . rev-parse --verify HEAD~1 >/dev/null 2>&1 && echo yes || echo no', returnStdout: true).trim() == 'yes'
+                def diffCmd = hasPrev ? 'git -C . diff --name-only HEAD~1' : 'git -C . show --name-only --pretty="" HEAD'
+
                 def changed = sh(script: diffCmd, returnStdout: true).trim()
                 def files = changed ? changed.split("\\r?\\n") : []
-
                 echo "Changed files:\n${files.join('\n')}"
 
                 env.SHOULD_BUILD_APP = files.any { it.startsWith('backend/') }  ? "true" : "false"
                 env.SHOULD_BUILD_API = files.any { it.startsWith('frontend/') } ? "true" : "false"
 
+                // 첫 실행 등으로 files가 비면 일단 둘 다 빌드
+                if (!files) {
+                    env.SHOULD_BUILD_APP = "true"
+                    env.SHOULD_BUILD_API = "true"
+                }
+
                 echo "SHOULD_BUILD_APP=${env.SHOULD_BUILD_APP}, SHOULD_BUILD_API=${env.SHOULD_BUILD_API}"
+                }
             }
             }
         }
-    }
+        }
 
     stage('Docker Login') {
       steps {
