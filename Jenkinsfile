@@ -211,8 +211,11 @@ spec:
               git config user.name  "jenkins-bot"
               git config user.email "jenkins-bot@local"
               git add -A
-              # 변경 없으면 커밋 스킵
-              git diff --quiet && echo "no changes" || git commit -m "chore: bump images to TAG=${TAG} (be=${SHOULD_BUILD_APP}, fe=${SHOULD_BUILD_API})"
+              if git diff --cached --quiet; then
+                echo "no staged changes — skip commit/push"
+              else
+                git commit -m "chore: bump images to TAG=${TAG} (be=${SHOULD_BUILD_APP}, fe=${SHOULD_BUILD_API})"
+              fi
             '''
 
             sshagent(credentials: ['nongchukya-k8s-manifests']) {
@@ -222,11 +225,12 @@ spec:
                 mkdir -p ~/.ssh && chmod 700 ~/.ssh
                 ssh-keyscan -t rsa,ecdsa,ed25519 -H github.com >> ~/.ssh/known_hosts
                 chmod 644 ~/.ssh/known_hosts
-
-                # 혹시 원격이 https 로 잡혀 있으면 ssh 로 고정
                 git remote set-url origin git@github.com:sangwon5579/nongchukya-k8s-manifests.git
-
-                git push origin HEAD:main
+                if ! git diff --cached --quiet; then
+                  git push origin HEAD:main
+                else
+                  echo "nothing to push"
+                fi
               '''
             }
 
