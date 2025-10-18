@@ -113,7 +113,7 @@ spec:
     stage('Docker Compose up') {
         steps {
             container('docker') {
-            dir('BE18-4TH-5TEAM-PROJECT') {
+            dir('be18-4th-5team-project') {  //일단 강제 경로 지정
                 sh '''
                 echo "현재 디렉토리: $(pwd)"
                 ls -la
