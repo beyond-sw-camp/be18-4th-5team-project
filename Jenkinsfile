@@ -164,7 +164,7 @@ spec:
                 $class: 'GitSCM',
                 userRemoteConfigs: [[
                     url: 'git@github.com:sangwon5579/nongchukya-k8s-manifests.git',
-                    credentialsId: 'github-k8s-manifests'
+                    credentialsId: 'nongchukya-k8s-manifests'
                 ]],
                 branches: [[name: '*/main']]
                 ])
