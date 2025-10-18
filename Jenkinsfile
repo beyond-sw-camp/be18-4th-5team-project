@@ -221,16 +221,14 @@ spec:
             sshagent(credentials: ['nongchukya-k8s-manifests']) {
               sh '''
                 set -eux
-                # GitHub 호스트키 신뢰 등록
+                # GitHub host key 등록
                 mkdir -p ~/.ssh && chmod 700 ~/.ssh
                 ssh-keyscan -t rsa,ecdsa,ed25519 -H github.com >> ~/.ssh/known_hosts
                 chmod 644 ~/.ssh/known_hosts
+                # 원격을 SSH로 고정
                 git remote set-url origin git@github.com:sangwon5579/nongchukya-k8s-manifests.git
-                if ! git diff --cached --quiet; then
-                  git push origin HEAD:main
-                else
-                  echo "nothing to push"
-                fi
+                # 커밋이 있으면 항상 push
+                git push origin HEAD:main
               '''
             }
 
