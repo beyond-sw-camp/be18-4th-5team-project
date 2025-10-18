@@ -30,7 +30,7 @@ pipeline {
     }
 
     environment {
-        DOCKER_IMAGE_NAME = 'kyounggg/department-service'
+        DOCKER_IMAGE_NAME = 'kyounggg/ncy-service'
         DOCKER_CREDENTIALS_ID = 'dockerhub-access'
         DISCORD_WEBHOOK_CREDENTIALS_ID = 'discord-webhook'
     }
@@ -49,19 +49,19 @@ pipeline {
         //     }
         // }
 
-        // stage('Maven Build') {
-        //     steps {
-        //         container('maven') {
-        //             sh 'pwd'
-        //             sh 'ls -al'
-        //             sh 'mvn -v'
-        //             // sh 'mvn clean'
-        //             sh 'mvn package -DskipTests'
-        //             sh 'ls -al'
-        //             sh 'ls -al ./target'
-        //         }
-        //     }
-        // }
+        stage('Maven Build') {
+            steps {
+                container('maven') {
+                    sh 'pwd'
+                    sh 'ls -al'
+                    sh 'mvn -v'
+                    // sh 'mvn clean'
+                    sh 'mvn package -DskipTests'
+                    sh 'ls -al'
+                    sh 'ls -al ./target'
+                }
+            }
+        }
 
         stage('Docker Image Build & Push') {
             steps {
