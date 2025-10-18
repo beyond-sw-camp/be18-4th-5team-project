@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: matching-ingress
+  annotations:
+    # cert-manager.io/cluster-issuer: selfsigned-cluster-issuer
+spec:
+  ingressClassName: nginx
+
+  # tls:
+  # - secretName: matching-tls-secret
+  #   hosts:
+  #   - nongchukya-backend.beyond.com
+  #   - nongchukya-app.beyond.com
+
+  rules:
+  - host: nongchukya-backend.beyond.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-api-service
+            port:
+              number: 8080
+
+  - host: nongchukya-app.beyond.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-vue-service
+            port:
+              number: 80

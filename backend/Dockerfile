@@ -4,7 +4,7 @@ WORKDIR /app
 COPY mvnw ./
 COPY .mvn/ .mvn/
 COPY pom.xml ./
-RUN chmod +x mvn
+RUN chmod +x mvnw
 RUN ./mvnw -B -DskipTests dependency:go-offline
 COPY src/ src/
 RUN ./mvnw -B -DskipTests clean package

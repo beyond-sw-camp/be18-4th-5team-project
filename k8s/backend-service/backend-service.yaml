@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: backend-api-service
 spec:
-  # type: NodePort
   type: ClusterIP
   selector:
-    app: backend-api
+    app: backend
+    version: blue
   ports:
-  - name: backend-api-port
+  - name: http
     port: 8080
     targetPort: 8080

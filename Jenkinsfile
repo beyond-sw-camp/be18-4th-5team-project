@@ -1,17 +1,125 @@
 pipeline {
-    agent any
+    agent kubernetes {
+        yaml '''
+        apiVersion: v1
+        kind:Pod
+        metadata:
+            labels:
+                run: jenkins-agent
+        spec:
+            containers:
+            - name: docker
+              image: docker:28.5.1-cli-alpine3.22
+              command:
+              - cat
+              tty: true
+              volumeMounts:
+              - mountPath: "/var/run/docker.sock"
+                name: docker-socket
+              volumes:
+              - name: docker-socket
+                hostPath:
+                  path: "/var/run/docker.sock"
+        '''
+    }
 
 
     environment {
         DISCORD_WEBHOOK_CREDENTIALS_ID = 'discord-webhook'
+        DOCKER_CREDENTIALS_ID = 'dockerhub-access'
+        BACK_IMAGE_NAME = "sangwon0410/nongchukya-frontend"
+        FRONT_IMAGE_NAME = "sangwon0410/nongchukya-backend"
+        TAG = "${env.BUILD_NUMBER}"
     }    
 
     stages{
-        stage('Docker Compose up') {
+        stage('Checkout') {
+            steps { checkout scm }
+            }
+
+
+        stage('Docker Login') {
             steps {
-                sh 'docker compose up -d --build'
+                container('docker') {
+                    sh 'docker logout'
+
+                    withCredentials([usernamePassword(
+                        credentialsId: DOCKER_CREDENTIALS_ID,
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    }
+                }
             }
         }
+
+        stage('Backend Image Build & Push') {
+            when {
+                expression {
+                    return env.SHOULD_BUILD_APP == "true"
+                }
+            }
+
+            steps {
+                container('docker') {
+                    dir('university-vue') {
+                        script {
+                            def buildNumber = "${env.BUILD_NUMBER}"
+
+                            withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
+                                sh 'docker -v'
+                                sh 'echo $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker build --no-cache -t $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                                sh 'docker image inspect $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker push $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Frontend Image Build & Push') {
+            when {
+                expression {
+                    return env.SHOULD_BUILD_API == "true"
+                }
+            }
+
+            steps {
+                container('docker') {
+                    dir('department-api') {
+                        script {
+                            def buildNumber = "${env.BUILD_NUMBER}"
+
+                            withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
+                                sh 'docker -v'
+                                sh 'echo $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker build --no-cache -t $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                                sh 'docker image inspect $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker push $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        stage('Docker Compose up') {
+            steps {
+                container('docker'){
+                    sh '''
+                    docker --version
+                    docker compose version || true
+                    docker compose up -d --build
+                '''
+                }
+            }
+        }
+
+
     }
         
     

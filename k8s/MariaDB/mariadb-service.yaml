@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: matching-mariadb-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: matching-mariadb-app
   ports:

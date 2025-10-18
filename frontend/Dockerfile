@@ -4,7 +4,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN nom install
 RUN npm run build
 
 # ===== Runtime stage =====
