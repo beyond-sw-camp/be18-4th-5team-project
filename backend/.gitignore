@@ -41,4 +41,3 @@ target/
 node_modules/
 dist/
 .env
-application.yml
