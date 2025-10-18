@@ -31,8 +31,8 @@ spec:
     DOCKER_CREDENTIALS_ID = 'dockerhub-access'
     BACK_IMAGE_NAME = "sangwon0410/nongchukya-backend"
     FRONT_IMAGE_NAME = "sangwon0410/nongchukya-frontend"
-    //TAG = "${env.BUILD_NUMBER}"
-    TAG = "latest"
+    TAG = "${env.BUILD_NUMBER}"
+    // TAG = "latest"
   }
 
   stages {
