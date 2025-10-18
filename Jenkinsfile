@@ -3,29 +3,29 @@ pipeline {
     kubernetes {
       defaultContainer 'docker'
       yaml """
-            apiVersion: v1
-            kind: Pod
-            metadata:
-            labels:
-                run: jenkins-agent
-            spec:
-            serviceAccountName: jenkins
-            containers:
-                - name: docker
-                image: docker:27.3.1-cli-alpine
-                command:
-                    - cat
-                tty: true
-                volumeMounts:
-                    - name: docker-sock
-                    mountPath: /var/run/docker.sock
-            volumes:
-                - name: docker-sock
-                hostPath:
-                    path: /var/run/docker.sock
-            """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: jenkins-agent
+spec:
+  serviceAccountName: jenkins
+  containers:
+  - name: docker
+    image: docker:27.3.1-cli-alpine
+    command: ['cat']
+    tty: true
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+""".stripIndent()
     }
   }
+
 
 
     environment {
