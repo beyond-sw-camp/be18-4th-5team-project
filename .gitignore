@@ -202,9 +202,7 @@ dist/
 npm-debug.log
 yarn-error.log
 
-# Spring 설정만 제외
-/application.yml
-/application-*.yml
+
 
 .idea/
 .env
