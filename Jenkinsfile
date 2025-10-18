@@ -118,7 +118,7 @@ spec:
                 echo "현재 디렉토리: $(pwd)"
                 ls -la
                 echo "Docker Compose 실행 시작"
-                docker compose -f docker-compose.yml up -d --build
+                docker compose -f docker-compose.yaml up -d --build
                 '''
             }
             }
