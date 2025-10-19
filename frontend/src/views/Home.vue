@@ -10,7 +10,7 @@
     <!-- dailyMatches가 비어있을 때 -->
     <div v-if="matchStore.dailyMatches.length === 0" class="no-matches">
       <img src="@/assets/pokemon(1).png" alt="경기 없음" />
-      <p>아직 등록된 경기가 없습니다!!!!.</p>
+      <p>아직 등록된 경기가 없습니다!!!!!!.</p>
     </div>
 
     <!-- dailyMatches가 있을 때 -->
