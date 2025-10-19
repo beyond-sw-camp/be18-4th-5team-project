@@ -214,7 +214,7 @@ spec:
               if git diff --cached --quiet; then
                 echo "no staged changes — skip commit/push"
               else
-                git commit -m "chore: bump images to TAG=${TAG} (be=${SHOULD_BUILD_APP}, fe=${SHOULD_BUILD_API})"
+                git commit -m "[chore] 이미지 태그 변화 TAG=${TAG} (be=${SHOULD_BUILD_APP}, fe=${SHOULD_BUILD_API})"
               fi
             '''
 

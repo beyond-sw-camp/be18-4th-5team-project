@@ -21,7 +21,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: nongchukya-backend-service
+            name: backend
             port:
               number: 8080
 
@@ -32,6 +32,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: nongchukya-frontend-service
+            name: university-vue-service
             port:
               number: 80
