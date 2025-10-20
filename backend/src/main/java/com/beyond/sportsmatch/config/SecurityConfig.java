@@ -65,7 +65,7 @@ public class SecurityConfig {
                                 "/auth/kakao/callback",
                                 "/oauth/callback",
                                 "/ws/**",
-                                "/api/v1/sse/**",
+                                "/api/v1/sse/**"
                                 // "/"
                         ).permitAll()
                         // 임박 매칭 리스트, 날짜별 매칭 리스트는 공개
