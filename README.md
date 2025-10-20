@@ -257,3 +257,26 @@
 
 ---
 
+# 11. CI / CD
+
+## CI/CD 파이프라인 스크립트
+<details>
+  <summary>Jenkins Pipline</summary>
+</details>
+
+<details>
+  <summary>k8s manifest Pipline</summary>
+</details>
+
+## CI/CD 실행 결과
+<details>
+  <summary>Jenkins/argo CD</summary>
+</details>
+
+## 주요 기능 시연 영상
+
+
+
+
+
+
