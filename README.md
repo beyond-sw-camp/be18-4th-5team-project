@@ -521,9 +521,16 @@
   
 </details>
 
+<details>
+<summary>discord bot</summary>
+
+<img width="1344" height="882" alt="image" src="https://github.com/user-attachments/assets/143b5be5-0a8c-4fb4-a27f-aa64d3494e80" />
+
+</details>
+
 ## 주요 기능 시연 영상
 
-
+https://github.com/user-attachments/assets/6c914a7b-ff29-472a-884a-4ffc39b6f854
 
 
 
