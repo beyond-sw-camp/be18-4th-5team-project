@@ -95,7 +95,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter, onBeforeRouteUpdate } from 'vue-router';
-import { usePostStore } from '../store/postStore';
+// import { usePostStore } from '../store/postStore';
+import { usePostStore } from '../store/PostStore';
 import Pagination from '@/components/Pagination.vue';
 
 const postStore = usePostStore();

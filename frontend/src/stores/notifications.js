@@ -5,7 +5,7 @@ import api from '@/api/axios'
 const CACHE_KEY = 'notif:lastCount'
 
 const SSE_URL = (token) =>
-  `http://localhost:8080/api/v1/sse/notifications?token=${encodeURIComponent(token)}`
+  `https://matching-api.beyond.com:30443/api/v1/sse/notifications?token=${encodeURIComponent(token)}`
 
 export const useNotificationStore = defineStore('notifications', {
   state: () => ({

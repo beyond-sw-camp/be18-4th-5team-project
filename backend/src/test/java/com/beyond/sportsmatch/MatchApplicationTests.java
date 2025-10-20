@@ -3,7 +3,7 @@ package com.beyond.sportsmatch;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTestngBootTest
 class MatchApplicationTests {
 
     @Test

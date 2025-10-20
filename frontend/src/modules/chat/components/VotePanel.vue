@@ -109,7 +109,7 @@
 
 <script>
 import api from '@/api/axios'
-const API = 'http://localhost:8080'
+const API = 'https://matching-api.beyond.com:30443'
 
 export default {
   name: 'VotePanel',

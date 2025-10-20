@@ -13,7 +13,7 @@ const router = useRouter();
 const code = route.query.code;
 
 if (code) {
-  fetch(`http://localhost:8080/api/v1/auth/kakao/callback?code=${code}`, {  // ✅ API prefix 맞추기
+  fetch(`https://matching-api.beyond.com/api/v1/auth/kakao/callback?code=${code}`, {  // ✅ API prefix 맞추기
     method: "GET",
     credentials: "include",
   })

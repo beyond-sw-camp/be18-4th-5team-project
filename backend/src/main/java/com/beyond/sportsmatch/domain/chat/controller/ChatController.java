@@ -37,6 +37,7 @@ public class ChatController {
     }
 
     // 개인 채팅방 개설 또는 기존 roomId return
+    //
     @PostMapping("/private/create")
     public ResponseEntity<BaseResponseDto<Integer>> createOrGetPrivateRoom(@RequestParam String otherNickname) {
         int roomId = chatService.getOrCreatePrivateRoom(otherNickname);

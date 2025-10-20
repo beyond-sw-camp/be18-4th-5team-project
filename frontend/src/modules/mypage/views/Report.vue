@@ -68,7 +68,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import axios from 'axios'
+import api from '@/api/axios'
 
 const targetUserNickname = ref('')
 const reason = ref('')
@@ -98,7 +98,7 @@ const submitReport = async () => {
     formData.append('reason', reason.value)
     formData.append('description', description.value || '')
 
-    await axios.post('http://localhost:8080/api/v1/mypage/reports', formData, {
+    await api.post('/api/v1/mypage/reports', formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data'
@@ -121,7 +121,7 @@ const submitReport = async () => {
 const fetchReports = async () => {
   try {
     const token = localStorage.getItem('accessToken')
-    const res = await axios.get('http://localhost:8080/api/v1/mypage/reports/submitted', {
+    const res = await api.get('/api/v1/mypage/reports/submitted', {
       headers: { Authorization: `Bearer ${token}` }
     })
     reports.value = res.data.items || []

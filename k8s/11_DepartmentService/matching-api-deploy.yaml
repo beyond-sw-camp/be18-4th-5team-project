@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-api-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matching-api
+  template:
+    metadata:
+      labels:
+        app: matching-api
+    spec:
+      containers:
+      - name: matching-api
+        image: leejingu/matching-back:28.0
+        resources:
+          requests:
+            memory: "521Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+        ports:
+        - containerPort: 8087
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: dev
+        # 컨테이너 안의 애플리케이션이 시작되었는지 확인한다.
+        startupProbe: 
+          httpGet:
+            path: /actuator/health/liveness   
+            port: 8087
+          # 실패를 허용하는 최대 횟수
+          failureThreshold: 30
+          timeoutSeconds: 3
+          # 10초마다 상태를 확인
+          periodSeconds: 10
+        # 컨테이너 안의 애플리케이션이 살아있는지 지속적으로 확인한다.
+        livenessProbe: 
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8087
+          initialDelaySeconds: 10
+          periodSeconds: 20
+          timeoutSeconds: 3         # ⬅ 1 → 3
+          failureThreshold: 3
+        # 컨테이너 안의 애플리케이션이 실제로 서비스 요청에 응답할 수 있는지 확인한다.
+        readinessProbe: 
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8087
+            # 최초 지연 시간
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3         # ⬅ 1 → 3
+          failureThreshold: 6
