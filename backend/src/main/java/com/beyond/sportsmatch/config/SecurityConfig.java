@@ -52,7 +52,6 @@ public class SecurityConfig {
 
 
     // Spring Security 필터 체인
-    // 테스트2
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -62,7 +61,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
-                                "/api/v1/auth/**",
+                                // "/api/v1/auth/**",
                                 "/auth/kakao/callback",
                                 "/oauth/callback",
                                 "/ws/**",
