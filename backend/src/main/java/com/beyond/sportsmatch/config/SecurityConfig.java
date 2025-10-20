@@ -66,7 +66,7 @@ public class SecurityConfig {
                                 "/oauth/callback",
                                 "/ws/**",
                                 "/api/v1/sse/**",
-                                // "/"
+                                "/"
                         ).permitAll()
                         // 임박 매칭 리스트, 날짜별 매칭 리스트는 공개
                         .requestMatchers("/api/v1/match-service/imminent-matches", "/api/v1/match-service/matches-by-date"
