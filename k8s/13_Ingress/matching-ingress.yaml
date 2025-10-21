@@ -1,0 +1,53 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: matching-ingress
+  annotations:
+    # 어떤 발급자를 통해 인증서를 발급받을지 결정한다.
+    cert-manager.io/cluster-issuer: selfsigned-cluster-issuer
+    # SSE 안정화에 필수
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    # 🔸 웹소켓 핸드셰이크는 HTTP/1.1 필요
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/enable-websocket: "true"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "INGRESS_STICKY"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "86400"
+
+spec:
+  # 라우팅 규칙을 적용할 인그레스 컨트롤러를 선택한다.
+  ingressClassName: nginx
+  # 인증서를 적용할 도메인을 설정한다.
+  tls:
+  - secretName: matching-tls-secret
+    hosts:
+    - matching-api.beyond.com
+    - matching-app.beyond.com
+  # 호스트 기반의 라우팅(Host-Based Routing)
+  # 하나의 인그레스에서 여러 도메인 이름에 대해 서로 다른 서비스로 요청을 라우팅한다.
+  rules:
+  - host: matching-api.beyond.com
+    http: 
+      paths:
+      # Prefix는 사용자의 요청 경로가 지정된 경로(path)로 시작할 경우 일치한다.
+      - pathType: Prefix
+        # path는 작성한 경로를 기준으로 서비스로 요청을 라우팅한다.
+        path: "/"
+        # backend는 요청을 전달할 내부 서비스와 포트를 지정한다.
+        backend:
+          service:
+            name: matching-api-service
+            port: 
+              number: 8087
+  - host: matching-app.beyond.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: matching-vue-service
+            port:
+              number: 80
