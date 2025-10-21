@@ -53,7 +53,6 @@ public class SecurityConfig {
 
 
     // Spring Security 필터 체인
-    // 테스트
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
