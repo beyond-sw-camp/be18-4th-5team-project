@@ -642,7 +642,15 @@ https://github.com/user-attachments/assets/6c914a7b-ff29-472a-884a-4ffc39b6f854
   - 클러스터에 따라 timeout을 ConfigMap 전역 설정(`nginx.conf`)으로 통합 관리 가능<br>
 
 
+# 13. 회고록
 
+|   조원 이름	| 회고  	 |
+|---	|-------|
+|   이진구   |  여기 작성 |
+|   박진우   | 여기 작성 |
+|   윤석현   | 여기 작성 |
+|   조상원   | 여기 작성 |
+|   최유경 	 | 	여기 작성 |
 
 
 
