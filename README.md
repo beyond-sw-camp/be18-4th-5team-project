@@ -263,8 +263,7 @@
 
  ## 아키텍처
 
-<img width="5342" height="6026" alt="image" src="https://github.com/user-attachments/assets/9bdefdb7-a832-49dd-b8a4-b0dbb9294d0f" />
-
+<img width="4783" height="5550" alt="image" src="https://github.com/user-attachments/assets/8a2c9ce1-4fb9-4c00-90c3-cf8ed45d4a08" />
 
 ## 시나리오
 
@@ -543,9 +542,10 @@
 ## CI/CD 실행 결과
 <details>
   <summary>Jenkins/argo CD</summary>
-
-  https://www.youtube.com/watch?v=Un8148811AU
   
+  https://www.youtube.com/watch?v=Un8148811AU
+  <img width="1900" height="962" alt="image" src="https://github.com/user-attachments/assets/aa11c8b7-09cf-44a4-abf5-aa94fa17264c" />
+ 
 </details>
 
 <details>
@@ -555,7 +555,7 @@
 
 </details>
 
-## 주요 기능 시연 영상
+## 주요 기능 시연
 
 https://github.com/user-attachments/assets/6c914a7b-ff29-472a-884a-4ffc39b6f854
 
