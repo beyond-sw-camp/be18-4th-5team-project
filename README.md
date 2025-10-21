@@ -64,7 +64,7 @@
 기존 서비스가 ‘정기 모임’ 중심이라면, **우리 서비스는 ‘가벼운 번개 모임’ 중심**이다.  
 시간과 약속에 얽매이지 않고, 남는 시간에 **즉시 운동 참여**가 가능하도록 설계했다.  
 
-<img src="/readme_images/{49E2E0A0-8005-473C-A1FA-6B130751604A}.png" alt="1" width="500"/>
+<img width="751" height="268" alt="{49E2E0A0-8005-473C-A1FA-6B130751604A}" src="https://github.com/user-attachments/assets/e1c562b7-a716-4285-9ee8-8dd55407709e" />
 
 현대인에게 운동은 단순한 취미가 아니라 **건강 관리와 체력 유지**를 위한 필수 요소다.  
 그러나 현실에서는 가장 큰 걸림돌이 있다. 바로 **시간 부족**이다.  
@@ -153,13 +153,12 @@
 
 # 3. 프로젝트 기대 효과
 
-## 1. 시간적 제약 해소
+**1. 시간적 제약 해소**
 
 사용자는 별도의 정기 모임이나 동호회에 얽매이지 않고, **자신이 가능한 시간에 맞춰 즉시 운동 파트너를 찾을 수 있다.**
 
----
 
-## 2. 참여 장벽 완화
+**2. 참여 장벽 완화**
 
 - 복잡한 가입 절차, 모임 승인, 지속적인 출석 부담이 없다.
 - 원하는 조건(종목·시간·지역·성별)만 입력하면 **자동 매칭 → 자동 채팅방 생성 → 바로 소통**이 가능해 **참여 진입 장벽이 크게 낮아진다.**
@@ -588,21 +587,20 @@ https://github.com/user-attachments/assets/6c914a7b-ff29-472a-884a-4ffc39b6f854
     
 > ### 🚧 Nginx Ingress에서 SSE/WebSocket 연결 끊김 문제 <br>
 **1️⃣ 문제 상황** <br>
-  - **SSE(Server-Sent Events)** 기반 실시간 알림 기능과 **WebSocket** 기반 실시간 채팅 기능이 정상 작동하지 않음.
-  - 클라이언트에서는 **연결 즉시 끊김** 또는 **403 / 400 에러** 발생.
+  - SSE 기반 실시간 알림 기능과 WebSocket 기반 실시간 채팅 기능이 정상 작동하지 않음.
+  - 클라이언트에서는 연결 즉시 끊김 또는 403 / 400 에러 발생.
   - 백엔드(Spring Boot) 로그에서는 연결 요청이 오지 않거나, 요청 직후 stream이 닫힘.
-  - 동일한 코드가 로컬(`localhost`)에서는 정상 동작했음 → **Ingress 환경 문제로 추정**.
-
-    &nbsp;원인 분석 
-
-  - Spring Boot 애플리케이션은 SSE/WebSocket 연결을 **HTTP Keep-Alive 기반의 장시간 스트림**으로 유지.
-  - 그러나 **기본 Nginx Ingress Controller 설정은 HTTP 요청을 60초(default)** 이후 강제로 닫음.
-  - 또한 WebSocket의 경우 **HTTP/1.1 Upgrade 헤더**가 없으면 “업그레이드 불가(HTTP/1.0 fallback)”로 간주되어 연결 실패.
-        
-    **→ Ingress Controller가 긴 연결을 허용하지 않거나, HTTP/1.1 핸드셰이크를 차단하고 있었음.** <br>
+  - 동일한 코드가 로컬(`localhost`)에서는 정상 동작했음<br>
+    **→ Ingress 환경 문제로 추정**.<br>
         
 **2️⃣ 해결 과정** <br>
-  - `Ingress` 매니페스트에 설정 추가(Nginx Ingress annotation)
+  - Spring Boot 애플리케이션은 SSE/WebSocket 연결을 **HTTP Keep-Alive 기반의 장시간 스트림**으로 유지.
+  - 그러나 기본 Nginx Ingress Controller 설정은 HTTP 요청을 60초(default) 이후 강제로 닫음.
+  - 또한 WebSocket의 경우 HTTP/1.1 Upgrade 헤더가 없으면 “업그레이드 불가(HTTP/1.0 fallback)”로 간주되어 연결 실패.<br>
+    **→ Ingress Controller가 긴 연결을 허용하지 않거나, HTTP/1.1 핸드셰이크를 차단하고 있었음.** <br>
+    <br>
+    
+  - Ingress 매니페스트에 설정 추가(Nginx Ingress annotation)
 
     ```yaml
         metadata:
