@@ -38,7 +38,6 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
 
     // 비밀번호 암호화
-    // 테스트
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -46,6 +45,7 @@ public class SecurityConfig {
 
 
     // AuthenticationManager (로그인 시 필요)
+    // 테스트
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
