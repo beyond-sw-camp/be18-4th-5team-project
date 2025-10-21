@@ -542,7 +542,7 @@
 <details>
   <summary>Jenkins/argo CD</summary>
   
-  https://www.youtube.com/watch?v=Un8148811AU
+  [https://www.youtube.com/watch?v=Un8148811AU](https://youtu.be/4ZvnsTG-rsY)
   <img width="1900" height="962" alt="image" src="https://github.com/user-attachments/assets/aa11c8b7-09cf-44a4-abf5-aa94fa17264c" />
  
 </details>
