@@ -46,6 +46,7 @@ public class SecurityConfig {
 
     // AuthenticationManager (로그인 시 필요)
     // 테스트
+    // 테스트 2
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
