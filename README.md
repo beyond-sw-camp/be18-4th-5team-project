@@ -555,6 +555,13 @@
 
 </details>
 
+<details>
+<summary>Docker Hub</summary>
+
+<img width="1914" height="526" alt="image" src="https://github.com/user-attachments/assets/1162ae7f-ead6-48cf-a772-c8baff5b66e1" />
+
+</details>
+
 ## 주요 기능 시연 영상
 
 https://github.com/user-attachments/assets/6c914a7b-ff29-472a-884a-4ffc39b6f854
