@@ -16,15 +16,15 @@
 
 <table>
   <tr align="center">
-    <td>박진우</td>
     <td>이진구</td>
+    <td>박진우</td>
     <td>윤석현</td>
     <td>조상원</td>
     <td>최유경</td>
   </tr>
   <tr align="center">
-    <td><a target="_blank" href="https://github.com/JINWOO-0715"><img src="https://avatars.githubusercontent.com/u/55976921?v=4" width="100px"><br>@JINWOO-0715</a></td>
     <td><a target="_blank" href="https://github.com/LeeJingu01"><img src="https://avatars.githubusercontent.com/u/174857452?v=4" width="100px"><br>@LeeJingu01</a> </td>
+    <td><a target="_blank" href="https://github.com/JINWOO-0715"><img src="https://avatars.githubusercontent.com/u/55976921?v=4" width="100px"><br>@JINWOO-0715</a></td>
     <td><a target="_blank" href="https://github.com/xxiuan"><img src="https://avatars.githubusercontent.com/u/156274066?v=4" width="100px"><br>@xxiuan</a> </td>
     <td><a target="_blank" href="https://github.com/sangwon5579"><img src="https://avatars.githubusercontent.com/u/81066249?v=4" width="100px"><br>@sangwon5589</a>  </td>
     <td><a target="_blank" href="https://github.com/kyounggg"><img src="https://avatars.githubusercontent.com/u/114654921?v=4" width="100px"><br>@kyounggg</a>  </td>
@@ -595,15 +595,14 @@ https://github.com/user-attachments/assets/6c914a7b-ff29-472a-884a-4ffc39b6f854
         - 백엔드(Spring Boot) 로그에서는 연결 요청이 오지 않거나, 요청 직후 stream이 닫힘.
         - 동일한 코드가 로컬(`localhost`)에서는 정상 동작했음 → **Ingress 환경 문제로 추정**.
         
-        ---
+
+원인 분석 
         
-        원인 분석 
+- Spring Boot 애플리케이션은 SSE/WebSocket 연결을 **HTTP Keep-Alive 기반의 장시간 스트림**으로 유지.
+- 그러나 **기본 Nginx Ingress Controller 설정은 HTTP 요청을 60초(default)** 이후 강제로 닫음.
+- 또한 WebSocket의 경우 **HTTP/1.1 Upgrade 헤더**가 없으면 “업그레이드 불가(HTTP/1.0 fallback)”로 간주되어 연결 실패.
         
-        - Spring Boot 애플리케이션은 SSE/WebSocket 연결을 **HTTP Keep-Alive 기반의 장시간 스트림**으로 유지.
-        - 그러나 **기본 Nginx Ingress Controller 설정은 HTTP 요청을 60초(default)** 이후 강제로 닫음.
-        - 또한 WebSocket의 경우 **HTTP/1.1 Upgrade 헤더**가 없으면 “업그레이드 불가(HTTP/1.0 fallback)”로 간주되어 연결 실패.
-        
-        **->Ingress Controller가 긴 연결을 허용하지 않거나, HTTP/1.1 핸드셰이크를 차단하고 있었음.**
+**->Ingress Controller가 긴 연결을 허용하지 않거나, HTTP/1.1 핸드셰이크를 차단하고 있었음.**
         
 **2️⃣ 해결 과정** <br>
   - Nginx Ingress annotation 추가
